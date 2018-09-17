@@ -1,0 +1,89 @@
+{% extends "index.html" %}
+
+{% block scripts %}
+    {{block.super}}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+
+{% block main %}
+
+<h1>#{{ company.cik }} {{ company.name }} {{ company.symbol }}</h1>
+<div id="trendChart"></div>
+<script>
+
+    var data = {{ chart_data|safe }};
+    console.log(data);
+
+    var convertible_notes = [];
+    var cost_of_revenue = [];
+    var equity = [];
+    var net_income = [];
+    var revenue = [];
+    var shares = [];
+    var x = [];
+
+    for(var i=0;i<data.length;i++){
+        var el = data[i];
+        x.push(el.date);
+        convertible_notes.push(el.convertible_notes);
+        cost_of_revenue.push(el.cost_of_revenue);
+        equity.push(el.equity);
+        net_income.push(el.net_income);
+        revenue.push(el.revenue);
+        shares.push(el.shares);
+    }
+
+    var lines = [
+        {
+            y: convertible_notes,
+            x: x,
+            name: 'Convertible Notes',
+        },
+        {
+            y: cost_of_revenue,
+            x: x,
+            name: 'Cost of Revenue',
+        },
+        {
+            y: equity,
+            x: x,
+            name: 'Equity',
+        },
+        {
+            y: net_income,
+            x: x,
+            name: 'Net loss',
+        },
+        {
+            y: revenue,
+            x: x,
+            name: 'Revenue',
+        },
+        {
+            y: shares,
+            x: x,
+            name: 'Shares',
+        },
+    ];
+
+    var d3 = Plotly.d3;
+    var trendChart = document.getElementById('trendChart');
+
+    for(var i=0;i<lines.length;i++){
+        var chartId = 'chart' + i;
+        trendChart.innerHTML = trendChart.innerHTML + '<div id="'+ chartId +'"></div>';
+    }
+
+    for(var i=0;i<lines.length;i++){
+        var line = lines[i];
+        line['type'] = 'scatter';
+        var layout = {
+          title: line.name
+        };
+        var chartId = 'chart' + i;
+        Plotly.newPlot(chartId, [line], layout);
+    }
+</script>
+
+{% endblock %}
